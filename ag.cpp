@@ -179,7 +179,7 @@ int main(int argc, char ** argv) {
 	sort(setB.begin(), setB.end());
 
 	string ansfile(argv[1]);
-	ansfile = ansfile + ".out";
+	ansfile = "int_" + ansfile + "_ag.out";
 	fstream f(ansfile, fstream::out);
 	
 	f << setA.size() << " " << sumA << endl;

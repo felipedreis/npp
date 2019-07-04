@@ -9,9 +9,10 @@ typedef std::chrono::duration<float> fsec;
 vector<long> numbers;
 vector< vector<int> > memo;
 vector<int> setA, setB;
+int sumA = 0, sumB = 0;
 
+/**
 long dp(int i, long capacity) {
-    printf("%d, %d\n", i, capacity);
     if (capacity < 0)
         return INF;
     if(i == numbers.size())
@@ -21,6 +22,7 @@ long dp(int i, long capacity) {
     
     return memo[i][capacity];
 }
+**/
 
 long iterative_dp(long n, long capacity) {
     printf("%d\n", capacity);
@@ -43,15 +45,17 @@ long iterative_dp(long n, long capacity) {
 	int currentCap = capacity;
 	for (int i = 0; i < n; ++i){
 	    if(memo[i][currentCap] != memo[i + 1][currentCap]){
-	        ans.push_back(numbers[i]);
+	        setA.push_back(numbers[i]);
 	        currentCap -= numbers[i];
+	    } else {
+	        setB.push_back(numbers[i]);
 	    }
 	}
 
 	return memo[0][capacity];
 }
 
-int main() {
+int main(int argc, char ** argv) {
 	long n, sum = 0, x;
 	cin >> n;
 
@@ -68,13 +72,26 @@ int main() {
 
 	fsec elapsed = end - start;
 	
-    sort(ans.begin(), ans.end());
-    
 	cout << n << " " << res << ", " << elapsed.count() << endl;
 	
-	for (auto i : ans) {
-	    cout << i << " ";
+	string ansfile(argv[1]);
+	ansfile = "int_" + ansfile + "_pd.out";
+	fstream f(ansfile, fstream::out);
+	
+    sort(setA.begin(), setA.end());
+    sort(setB.begin(), setB.end());
+	
+	f << setA.size() << " " << sumA << endl; 
+	for (auto i : setA) {
+	    f << i << " ";
 	}
-	cout << endl;
+	f << endl;
+	
+	f << setB.size() << " " << sumB << endl; 
+	for (auto i : setB) {
+	    f << i << " ";
+	}
+	
+	f << endl;
 	return 0;	
 }
