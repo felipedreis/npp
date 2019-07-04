@@ -7,27 +7,48 @@ typedef std::chrono::high_resolution_clock CLOCK;
 typedef std::chrono::duration<float> fsec;
 
 vector<long> numbers;
-vector< vector<bool> > memo;
+vector< vector<int> > memo;
+vector<int> setA, setB;
+
+long dp(int i, long capacity) {
+    printf("%d, %d\n", i, capacity);
+    if (capacity < 0)
+        return INF;
+    if(i == numbers.size())
+        return capacity;
+        
+    memo[i][capacity] = min(dp(i + 1, abs(capacity - numbers[i])), dp(i + 1,capacity));
+    
+    return memo[i][capacity];
+}
 
 long iterative_dp(long n, long capacity) {
-
-	memo.assign(capacity + 1, vector<bool>());	
-	memo[0].assign(n + 1, true);
-		
-	for (int i = 1; i < memo.size(); ++i) {
-		memo[i].assign(n + 1, false);
+    printf("%d\n", capacity);
+	memo.assign(n + 1, vector<int>());	
+	memo[n].assign(capacity + 1, 0);
+	for (int i = 0; i <= capacity; ++i) {
+		memo[n][i] = i;
+	}
+	for (int i = 0; i < n; ++i) {
+		memo[i].assign(capacity + 1, 0);
 	}
 
-	for (int i = 1; i <= capacity; ++i) {
-		for (int j = 1; j <= n; ++j) {
-			if(i - numbers[j] >= 0)
-				memo[i][j] = memo[i][j-1] || memo[i - numbers[j]][j - 1];
-			else
-				memo[i][j] = memo[i][j-1];
+	for (int i = n - 1; i >= 0; --i) {
+		for (int j = capacity; j >= 1; --j) {
+			memo[i][j] = min(memo[i + 1][j],memo[i + 1][abs(j - numbers[i])]);
+			
 		}
 	}
+	
+	int currentCap = capacity;
+	for (int i = 0; i < n; ++i){
+	    if(memo[i][currentCap] != memo[i + 1][currentCap]){
+	        ans.push_back(numbers[i]);
+	        currentCap -= numbers[i];
+	    }
+	}
 
-	return memo[capacity][n];
+	return memo[0][capacity];
 }
 
 int main() {
@@ -39,14 +60,21 @@ int main() {
 		numbers.push_back(x);
 		sum += x;
 	}
+	long capacity = ceil(sum/2.0);
 
-	long capacity = sum/2;
 	auto start = CLOCK::now();
 	long res = iterative_dp(n, capacity);
 	auto end = CLOCK::now();
 
 	fsec elapsed = end - start;
-
-	cout << elapsed.count() << endl;
+	
+    sort(ans.begin(), ans.end());
+    
+	cout << n << " " << res << ", " << elapsed.count() << endl;
+	
+	for (auto i : ans) {
+	    cout << i << " ";
+	}
+	cout << endl;
 	return 0;	
 }

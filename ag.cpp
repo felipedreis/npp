@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define POP_SIZE 150
+#define POP_SIZE 10
 #define MUTATION_RATE 0.1
 #define CROSSOVER_RATE 0.8
 #define OFFSPRING_SIZE (POP_SIZE * CROSSOVER_RATE)
@@ -12,6 +12,9 @@ typedef vector<bool> chromossome;
 typedef uniform_int_distribution<int> UIDist;
 typedef uniform_real_distribution<double> UDDist;
 
+typedef std::chrono::high_resolution_clock CLOCK;
+typedef std::chrono::duration<float> fsec;
+
 default_random_engine gen;
 
 struct individual {
@@ -21,7 +24,7 @@ struct individual {
 
 struct ind_comparator{
     bool operator()(individual a, individual b) {
-        return b.fit < a.fit;
+        return a.fit < b.fit;
     }
 };
 
@@ -65,8 +68,6 @@ pair<individual, individual> crossover(const individual& ind1, const individual&
 	chromossome f1, f2;
 	//f1.assign(IND_SIZE, 0);
 	//f2.assign(IND_SIZE, 0);
-	cout << "SIZEEEEE1 " << ind1.genes.size() << endl;
-	cout << "SIZEEEEE2 " << ind2.genes.size() << endl;
 	for	(int i = 0; i < part; ++i) {
 		f1.push_back(ind1.genes[i]); //[i] = ind1.genes[i];
 		f2.push_back(ind2.genes[i]); //[i] = ind2.genes[i];
@@ -85,9 +86,9 @@ pair<individual, individual> crossover(const individual& ind1, const individual&
 individual select(const vector<individual>& pop) {
 	individual best = pop.front();
 	individual selected;
-	do {
+	//do {
 		selected = pop[rndPop(gen)];
-	} while(uniform(gen) >= selected.fit/(double)best.fit);
+	//} while(uniform(gen) >= selected.fit/(double)best.fit);
 
 	return selected;
 }
@@ -128,12 +129,16 @@ individual AG() {
 		sort(pop.begin(), pop.end(), comparator);
 		pop.resize(POP_SIZE);
 		it++;
+		//cout << it << ": ";
+		//for (auto it = pop.begin(); it != pop.end(); ++it)
+		//    cout << it->fit << " ";
+	    //cout << endl;
 	}
 
 	return pop.front();
 }
 
-int main() {
+int main(int argc, char ** argv) {
 	int n,x;
 		
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -148,8 +153,47 @@ int main() {
 
 	IND_SIZE = n;
 	rndInt = UIDist(0, IND_SIZE);
-
+	
+	auto start = CLOCK::now();
 	individual best = AG();
-	cout << best.fit << endl;
+	auto end = CLOCK::now();
+	
+	
+	fsec elapsed = end - start;
+	cout << n << ", " << best.fit << ", " << elapsed.count() << endl;
+	
+	vector<int> setA, setB;
+	long sumA, sumB;
+	sumA = sumB = 0;
+	
+	for (int i = 0; i < IND_SIZE; ++i){
+	    if (best.genes[i]) {
+	        setA.push_back(numbers[i]);
+	        sumA += numbers[i];
+        } else {
+            setB.push_back(numbers[i]);
+            sumB += numbers[i];
+        }
+	}
+	sort(setA.begin(), setA.end());
+	sort(setB.begin(), setB.end());
+
+	string ansfile(argv[1]);
+	ansfile = ansfile + ".out";
+	fstream f(ansfile, fstream::out);
+	
+	f << setA.size() << " " << sumA << endl;
+	for (auto i : setA) {
+	    f << i << " ";
+	}
+	f << endl;
+	
+	f << setB.size() << " " << sumB << endl;
+	for (auto i : setB) {
+	    f << i << " ";
+	}
+	
+	f << endl;
+    f.close();		
 	return 0;
 }

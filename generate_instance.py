@@ -41,7 +41,8 @@ numbers = pA + pB
 
 numbers = filter(lambda x: x > 0, numbers)
 rnd.shuffle(numbers)
-
+pA.sort()
+pB.sort()
 if sumAB  == maxn:
 
     f = open(instance_name + ".in", "w")
